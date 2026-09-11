@@ -76,11 +76,11 @@ function App() {
 					id: file.id,
 					file: file.file,
 					type: file.type,
-					preset,
+					preset: file.preset,
 				},
 			})
 		}
-	}, [files, preset])
+	}, [files])
 
 	const createThumbnail = useCallback((file: File): Promise<string> => {
 		return new Promise((resolve) => {
@@ -231,7 +231,7 @@ function App() {
 				<div className="container mx-auto px-4 py-4">
 					<div className="flex items-center gap-3">
 						<IoBonfireSharp className="h-8 w-8 text-primary" aria-hidden="true" />
-						<h1 className="text-2xl font-bold">pl-img-opti</h1>
+						<h1 className="text-2xl font-bold">PL Image Optimizer</h1>
 					</div>
 				</div>
 			</header>
@@ -452,7 +452,7 @@ function App() {
 																variant="outline"
 																size="sm"
 																onClick={() => downloadFile(file)}
-																aria-label={`Download ${file.file.name}`}
+																aria-label={`Download optimized ${file.file.name}`}
 															>
 																<RiDownloadLine aria-hidden="true" />
 																Download
@@ -462,9 +462,10 @@ function App() {
 															variant="ghost"
 															size="sm"
 															onClick={() => removeFile(file.id)}
-															aria-label={`Remove ${file.file.name}`}
+															aria-label={`Remove ${file.file.name} from list`}
 														>
 															<RiCloseLine aria-hidden="true" />
+															Remove
 														</Button>
 													</div>
 												</td>
