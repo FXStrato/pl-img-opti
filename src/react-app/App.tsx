@@ -8,6 +8,7 @@ import {
 	RiLoader4Line,
 	RiTimeLine,
 	RiArchiveLine,
+	RiCloseLine,
 } from 'react-icons/ri'
 import { Button } from './components/ui/button'
 import { Card, CardContent } from './components/ui/card'
@@ -105,22 +106,23 @@ function App() {
 				setTimeout(() => setRejectedFiles(''), 5000)
 			}
 
-			const newFiles: ImageFile[] = await Promise.all(
-				validFiles.map(async (file) => ({
-					id: `${Date.now()}-${Math.random()}`,
-					file,
-					type: file.type as ImageFileType,
-					originalSize: file.size,
-					status: 'queued' as const,
-					progress: 0,
-					thumbnailUrl: await createThumbnail(file),
-				}))
-			)
+		const newFiles: ImageFile[] = await Promise.all(
+			validFiles.map(async (file) => ({
+				id: `${Date.now()}-${Math.random()}`,
+				file,
+				type: file.type as ImageFileType,
+				originalSize: file.size,
+				status: 'queued' as const,
+				progress: 0,
+				thumbnailUrl: await createThumbnail(file),
+				preset,
+			}))
+		)
 
-			setFiles((prev) => [...prev, ...newFiles])
-		},
-		[createThumbnail]
-	)
+		setFiles((prev) => [...prev, ...newFiles])
+	},
+	[createThumbnail, preset]
+)
 
 	const handleDrop = useCallback(
 		(e: React.DragEvent) => {
@@ -196,6 +198,21 @@ function App() {
 
 		processNext()
 	}, [files])
+
+	const removeFile = useCallback((fileId: string) => {
+		setFiles((prev) => {
+			const file = prev.find((f) => f.id === fileId)
+			if (file) {
+				if (file.thumbnailUrl) {
+					URL.revokeObjectURL(file.thumbnailUrl)
+				}
+				if (file.optimizedBlob) {
+					URL.revokeObjectURL(URL.createObjectURL(file.optimizedBlob))
+				}
+			}
+			return prev.filter((f) => f.id !== fileId)
+		})
+	}, [])
 
 	const totalOriginalSize = files.reduce((acc, f) => acc + f.originalSize, 0)
 	const totalOptimizedSize = files.reduce(
@@ -339,6 +356,9 @@ function App() {
 											<th className="text-left p-3 font-medium" scope="col">
 												File
 											</th>
+											<th className="text-center p-3 font-medium" scope="col">
+												Preset
+											</th>
 											<th className="text-right p-3 font-medium" scope="col">
 												Original Size
 											</th>
@@ -373,6 +393,9 @@ function App() {
 															{file.file.name}
 														</span>
 													</div>
+												</td>
+												<td className="p-3 text-center text-sm">
+													<span className="capitalize">{file.preset}</span>
 												</td>
 												<td className="p-3 text-right text-sm">
 													{formatBytes(file.originalSize)}
@@ -422,17 +445,28 @@ function App() {
 														)}
 													</div>
 												</td>
-												<td className="p-3 text-right">
-													{file.status === 'done' && (
+												<td className="p-3">
+													<div className="flex items-center justify-end gap-2">
+														{file.status === 'done' && (
+															<Button
+																variant="outline"
+																size="sm"
+																onClick={() => downloadFile(file)}
+																aria-label={`Download ${file.file.name}`}
+															>
+																<RiDownloadLine aria-hidden="true" />
+																Download
+															</Button>
+														)}
 														<Button
 															variant="ghost"
 															size="sm"
-															onClick={() => downloadFile(file)}
-															aria-label={`Download ${file.file.name}`}
+															onClick={() => removeFile(file.id)}
+															aria-label={`Remove ${file.file.name}`}
 														>
-															<RiDownloadLine aria-hidden="true" />
+															<RiCloseLine aria-hidden="true" />
 														</Button>
-													)}
+													</div>
 												</td>
 											</tr>
 										))}

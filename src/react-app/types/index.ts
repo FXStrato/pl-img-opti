@@ -15,6 +15,7 @@ export interface ImageFile {
 	error?: string
 	optimizedBlob?: Blob
 	thumbnailUrl?: string
+	preset: QualityPreset
 }
 
 export interface OptimizeRequest {

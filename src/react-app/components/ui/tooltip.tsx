@@ -9,13 +9,10 @@ interface TooltipProps {
 
 export function Tooltip({ children, content, side = "top" }: TooltipProps) {
 	const [isVisible, setIsVisible] = React.useState(false)
-	const [isFocused, setIsFocused] = React.useState(false)
 	const tooltipId = React.useId()
 
 	const showTooltip = () => setIsVisible(true)
-	const hideTooltip = () => {
-		if (!isFocused) setIsVisible(false)
-	}
+	const hideTooltip = () => setIsVisible(false)
 
 	const originalProps = children.props || {}
 
@@ -29,14 +26,16 @@ export function Tooltip({ children, content, side = "top" }: TooltipProps) {
 			originalProps.onMouseLeave?.(e)
 		},
 		onFocus: (e: React.FocusEvent) => {
-			setIsFocused(true)
 			showTooltip()
 			originalProps.onFocus?.(e)
 		},
 		onBlur: (e: React.FocusEvent) => {
-			setIsFocused(false)
 			hideTooltip()
 			originalProps.onBlur?.(e)
+		},
+		onClick: (e: React.MouseEvent) => {
+			hideTooltip()
+			originalProps.onClick?.(e)
 		},
 		"aria-describedby": isVisible ? tooltipId : originalProps["aria-describedby"],
 	} as any)
