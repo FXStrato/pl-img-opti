@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <defs>
+    <linearGradient id="fireGrad" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff6b35"/>
+      <stop offset="50%" stop-color="#f7931e"/>
+      <stop offset="100%" stop-color="#fdc830"/>
+    </linearGradient>
+  </defs>
+  <!-- Bonfire flame shape -->
+  <path d="M12 2C10 4 9 6 9 8C9 10 10 11.5 10 13C10 14 9.5 14.5 9 15C10 16 11.5 17 12 17C13 17 14 16.5 15 15C14.5 14.5 14 14 14 13C14 11.5 15 10 15 8C15 6 14 4 12 2Z" fill="url(#fireGrad)"/>
+  <path d="M8 16C6.5 16.5 5 17.5 5 19C5 20.5 6.5 22 9 22H15C17.5 22 19 20.5 19 19C19 17.5 17.5 16.5 16 16" fill="#ff6b35" opacity="0.7"/>
+  <!-- Inner flame accent -->
+  <path d="M12 6C11.5 7 11 8 11 9C11 10 11.5 11 12 11C12.5 11 13 10 13 9C13 8 12.5 7 12 6Z" fill="#fff" opacity="0.6"/>
+</svg>

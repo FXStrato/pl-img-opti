@@ -11,6 +11,7 @@ import {
 } from 'react-icons/ri'
 import { Button } from './components/ui/button'
 import { Card, CardContent } from './components/ui/card'
+import { Tooltip } from './components/ui/tooltip'
 import { cn, formatBytes } from './lib/utils'
 import { zipSync } from 'fflate'
 import type {
@@ -220,44 +221,97 @@ function App() {
 
 			<main className="container mx-auto px-4 py-8 max-w-6xl">
 				<div className="space-y-6">
-				<Card>
-					<CardContent className="p-6">
-						<label
-							ref={dropzoneRef}
-							onDrop={handleDrop}
-							onDragOver={handleDragOver}
-							onDragLeave={handleDragLeave}
-							className={cn(
-								'block border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors',
-								'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
-								isDragging
-									? 'border-primary bg-primary/5'
-									: 'border-border hover:border-primary/50'
-							)}
-						>
-							<RiUploadCloudLine
-								className="mx-auto h-16 w-16 text-muted-foreground mb-4"
-								aria-hidden="true"
-							/>
-							<p className="text-lg font-medium mb-2">
-								Drop SVG, PNG, or JPEG
-							</p>
-							<p className="text-sm text-muted-foreground mb-4">or</p>
-							<span className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 transition-colors">
-								Browse files
-							</span>
-							<input
-								ref={fileInputRef}
-								type="file"
-								multiple
-								accept=".svg,.png,.jpg,.jpeg,image/svg+xml,image/png,image/jpeg"
-								onChange={handleFileSelect}
-								className="sr-only"
-								aria-label="Upload images: SVG, PNG, or JPEG"
-							/>
-						</label>
-					</CardContent>
-				</Card>
+					<Card>
+						<CardContent className="p-6">
+							<div className="space-y-6">
+								<div>
+									<label className="block text-sm font-medium mb-3">
+										Quality Preset
+									</label>
+									<div
+										className="flex rounded-lg border p-1 w-fit"
+										role="group"
+										aria-label="Quality preset"
+									>
+										<Tooltip
+											content="SVG: Basic minification. PNG: Standard encode + OxiPNG level 1. JPEG: MozJPEG quality 95 (high quality, not mathematically lossless)."
+											side="bottom"
+										>
+											<Button
+												variant={preset === 'lossless' ? 'secondary' : 'ghost'}
+												size="sm"
+												onClick={() => setPreset('lossless')}
+												aria-pressed={preset === 'lossless'}
+											>
+												Lossless
+											</Button>
+										</Tooltip>
+										<Tooltip
+											content="SVG: Standard optimization. PNG: Standard encode + OxiPNG level 2. JPEG: MozJPEG quality 80."
+											side="bottom"
+										>
+											<Button
+												variant={preset === 'balanced' ? 'secondary' : 'ghost'}
+												size="sm"
+												onClick={() => setPreset('balanced')}
+												aria-pressed={preset === 'balanced'}
+											>
+												Balanced
+											</Button>
+										</Tooltip>
+										<Tooltip
+											content="SVG: Multipass/maximum minification. PNG: Standard encode + OxiPNG level 3. JPEG: MozJPEG quality 65."
+											side="bottom"
+										>
+											<Button
+												variant={preset === 'aggressive' ? 'secondary' : 'ghost'}
+												size="sm"
+												onClick={() => setPreset('aggressive')}
+												aria-pressed={preset === 'aggressive'}
+											>
+												Aggressive
+											</Button>
+										</Tooltip>
+									</div>
+								</div>
+
+								<label
+									ref={dropzoneRef}
+									onDrop={handleDrop}
+									onDragOver={handleDragOver}
+									onDragLeave={handleDragLeave}
+									className={cn(
+										'block border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors',
+										'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+										isDragging
+											? 'border-primary bg-primary/5'
+											: 'border-border hover:border-primary/50'
+									)}
+								>
+									<RiUploadCloudLine
+										className="mx-auto h-16 w-16 text-muted-foreground mb-4"
+										aria-hidden="true"
+									/>
+									<p className="text-lg font-medium mb-2">
+										Drop SVG, PNG, or JPEG
+									</p>
+									<p className="text-sm text-muted-foreground mb-4">or</p>
+									<span className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 transition-colors">
+										Browse files
+									</span>
+									<input
+										ref={fileInputRef}
+										type="file"
+										multiple
+										accept=".svg,.png,.jpg,.jpeg,image/svg+xml,image/png,image/jpeg"
+										onChange={handleFileSelect}
+										className="sr-only"
+										aria-label="Upload images: SVG, PNG, or JPEG"
+									/>
+								</label>
+							</div>
+						</CardContent>
+					</Card>
 
 					{rejectedFiles && (
 						<div
@@ -386,71 +440,38 @@ function App() {
 								</table>
 							</div>
 
-							<Card>
-								<CardContent className="p-4">
-									<div className="flex flex-wrap items-center justify-between gap-4">
-										<div className="flex items-center gap-6 text-sm">
-											<div>
-												<span className="text-muted-foreground">Files: </span>
-												<span className="font-medium">
-													{files.length} ({formatBytes(totalOriginalSize)} →{' '}
-													{formatBytes(totalOptimizedSize)})
-												</span>
-											</div>
-											<div>
-												<span className="text-muted-foreground">Saved: </span>
-												<span className="font-medium text-green-600">
-													{totalSavings}%
-												</span>
-											</div>
+						<Card>
+							<CardContent className="p-4">
+								<div className="flex flex-wrap items-center justify-between gap-4">
+									<div className="flex items-center gap-6 text-sm">
+										<div>
+											<span className="text-muted-foreground">Files: </span>
+											<span className="font-medium">
+												{files.length} ({formatBytes(totalOriginalSize)} →{' '}
+												{formatBytes(totalOptimizedSize)})
+											</span>
 										</div>
-
-										<div className="flex items-center gap-4">
-											<div
-												className="flex rounded-lg border p-1"
-												role="group"
-												aria-label="Quality preset"
-											>
-												<Button
-													variant={preset === 'lossless' ? 'secondary' : 'ghost'}
-													size="sm"
-													onClick={() => setPreset('lossless')}
-													aria-pressed={preset === 'lossless'}
-												>
-													Lossless
-												</Button>
-												<Button
-													variant={preset === 'balanced' ? 'secondary' : 'ghost'}
-													size="sm"
-													onClick={() => setPreset('balanced')}
-													aria-pressed={preset === 'balanced'}
-												>
-													Balanced
-												</Button>
-												<Button
-													variant={
-														preset === 'aggressive' ? 'secondary' : 'ghost'
-													}
-													size="sm"
-													onClick={() => setPreset('aggressive')}
-													aria-pressed={preset === 'aggressive'}
-												>
-													Aggressive
-												</Button>
-											</div>
-
-											<Button
-												onClick={downloadAllAsZip}
-												disabled={doneCount === 0}
-												aria-label={`Download all ${doneCount} optimized images as ZIP`}
-											>
-												<RiArchiveLine aria-hidden="true" />
-												Download ZIP
-											</Button>
+										<div>
+											<span className="text-muted-foreground">Saved: </span>
+											<span className="font-medium text-green-600">
+												{totalSavings}%
+											</span>
 										</div>
 									</div>
-								</CardContent>
-							</Card>
+
+									{files.length > 1 && (
+										<Button
+											onClick={downloadAllAsZip}
+											disabled={doneCount === 0}
+											aria-label={`Download all ${doneCount} optimized images as ZIP`}
+										>
+											<RiArchiveLine aria-hidden="true" />
+											Download ZIP
+										</Button>
+									)}
+								</div>
+							</CardContent>
+						</Card>
 						</>
 					)}
 				</div>
