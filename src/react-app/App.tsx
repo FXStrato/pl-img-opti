@@ -238,11 +238,11 @@ function App() {
 
 			<main className="container mx-auto px-4 py-8 max-w-6xl">
 				<div className="space-y-6">
-					<Card>
-						<CardContent className="p-6">
-							<div className="space-y-6">
+					<Card className="sm:max-h-[20rem]">
+						<CardContent className="p-4 h-full">
+							<div className="space-y-3 h-full flex flex-col sm:max-h-[calc(20rem-2rem)]">
 								<div>
-									<label className="block text-sm font-medium mb-3">
+									<label className="block text-sm font-medium mb-2">
 										Quality Preset
 									</label>
 									<div
@@ -298,7 +298,7 @@ function App() {
 									onDragOver={handleDragOver}
 									onDragLeave={handleDragLeave}
 									className={cn(
-										'block border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors',
+										'flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors',
 										'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
 										isDragging
 											? 'border-primary bg-primary/5'
@@ -306,14 +306,14 @@ function App() {
 									)}
 								>
 									<RiUploadCloudLine
-										className="mx-auto h-16 w-16 text-muted-foreground mb-4"
+										className="h-12 w-12 text-muted-foreground mb-3"
 										aria-hidden="true"
 									/>
-									<p className="text-lg font-medium mb-2">
+									<p className="text-base font-medium mb-1">
 										Drop SVG, PNG, or JPEG
 									</p>
-									<p className="text-sm text-muted-foreground mb-4">or</p>
-									<span className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 transition-colors">
+									<p className="text-sm text-muted-foreground mb-3">or</p>
+									<span className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 py-2 transition-colors">
 										Browse files
 									</span>
 									<input
@@ -346,13 +346,13 @@ function App() {
 					{files.length > 0 && (
 						<>
 							<div
-								className="overflow-x-auto"
+								className="max-h-[30rem] overflow-auto"
 								role="region"
 								aria-label="Image optimization queue"
 							>
 								<table className="w-full border-collapse">
-									<thead>
-										<tr className="border-b bg-muted/50">
+									<thead className="sticky top-0 bg-muted/50 z-10">
+										<tr className="border-b">
 											<th className="text-left p-3 font-medium" scope="col">
 												File
 											</th>
