@@ -50,15 +50,10 @@ async function optimizePNG(file: File, preset: QualityPreset): Promise<Blob> {
 	ctx.drawImage(bitmap, 0, 0)
 	const imageData = ctx.getImageData(0, 0, bitmap.width, bitmap.height)
 	
-	let encoded: ArrayBuffer
+	const pngData = await encodePng(imageData)
 	
-	if (preset === 'lossless') {
-		encoded = await encodePng(imageData)
-	} else {
-		const pngData = await encodePng(imageData)
-		const level = preset === 'balanced' ? 2 : 3
-		encoded = await oxipng(pngData, { level })
-	}
+	const level = preset === 'lossless' ? 1 : preset === 'balanced' ? 2 : 3
+	const encoded = await oxipng(pngData, { level })
 	
 	return new Blob([encoded], { type: 'image/png' })
 }

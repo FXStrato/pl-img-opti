@@ -27,9 +27,11 @@ A client-side image optimization web application built with React, Vite, and Clo
 
 | Preset      | SVG                        | PNG                          | JPEG                  |
 |-------------|----------------------------|------------------------------|-----------------------|
-| Lossless    | Basic minification         | Standard PNG encoding        | High quality (q=95)   |
-| Balanced    | Standard optimization      | OxiPNG level 2               | Medium quality (q=80) |
-| Aggressive  | Maximum minification       | OxiPNG level 3               | Lower quality (q=65)  |
+| Lossless    | Basic minification         | PNG encode + OxiPNG level 1  | High quality (q=95) † |
+| Balanced    | Standard optimization      | PNG encode + OxiPNG level 2  | Medium quality (q=80) |
+| Aggressive  | Maximum minification       | PNG encode + OxiPNG level 3  | Lower quality (q=65)  |
+
+**†** "Lossless" for JPEG means high-quality MozJPEG encoding (q≈95), not mathematically lossless compression. JPEG is inherently a lossy format; this preset minimizes quality loss while reducing file size.
 
 ## Getting Started
 
@@ -90,7 +92,7 @@ The application is configured as a Single Page Application (SPA) that serves fro
 - PNG (image/png)
 - JPEG (image/jpeg)
 
-Unsupported file types are silently rejected.
+Unsupported file types are rejected with a visible alert and live region announcement.
 
 ## Accessibility
 
@@ -102,11 +104,13 @@ This application is designed to be fully accessible:
 - **Semantic HTML**: Proper heading hierarchy and landmark regions
 - **Contrast**: Color combinations meet WCAG AA standards
 
-### Known Accessibility Considerations
+### UX and Accessibility Notes
 
-- File thumbnails are decorative and marked with empty alt text or aria-hidden
-- Progress updates are announced via ARIA live regions to avoid excessive verbosity
-- The dropzone is keyboard-accessible and properly labeled
+- **File thumbnails** are decorative and marked with empty alt text or aria-hidden
+- **Progress indication**: Optimization progress is shown with an indeterminate spinner rather than a percentage bar. The actual optimization happens in a single Web Worker pass without intermediate progress updates, so we show a "working" state rather than inventing fake granular percentages.
+- **The dropzone** uses a `<label>` element for the hidden file input, providing a single accessible interactive pattern (no nested button-in-button)
+- **Rejected files** trigger both a visible alert and an ARIA live region announcement
+- **Status updates** are announced via ARIA live regions to keep screen reader users informed without excessive verbosity
 
 ### Testing
 

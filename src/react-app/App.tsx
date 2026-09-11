@@ -11,7 +11,6 @@ import {
 } from 'react-icons/ri'
 import { Button } from './components/ui/button'
 import { Card, CardContent } from './components/ui/card'
-import { Progress } from './components/ui/progress'
 import { cn, formatBytes } from './lib/utils'
 import { zipSync } from 'fflate'
 import type {
@@ -28,9 +27,10 @@ function App() {
 	const [files, setFiles] = useState<ImageFile[]>([])
 	const [preset, setPreset] = useState<QualityPreset>('balanced')
 	const [isDragging, setIsDragging] = useState(false)
+	const [rejectedFiles, setRejectedFiles] = useState<string>('')
 	const fileInputRef = useRef<HTMLInputElement>(null)
 	const workerRef = useRef<Worker | null>(null)
-	const dropzoneRef = useRef<HTMLDivElement>(null)
+	const dropzoneRef = useRef<HTMLLabelElement>(null)
 
 	useEffect(() => {
 		workerRef.current = new OptimizerWorker()
@@ -64,7 +64,7 @@ function App() {
 			const file = queuedFiles[0]
 			setFiles((prev) =>
 				prev.map((f) =>
-					f.id === file.id ? { ...f, status: 'optimizing', progress: 50 } : f
+					f.id === file.id ? { ...f, status: 'optimizing', progress: 0 } : f
 				)
 			)
 			
@@ -96,6 +96,13 @@ function App() {
 			const validFiles = filesArray.filter((file) =>
 				ACCEPTED_TYPES.includes(file.type)
 			)
+			const rejectedCount = filesArray.length - validFiles.length
+
+			if (rejectedCount > 0) {
+				const message = `${rejectedCount} file${rejectedCount > 1 ? 's' : ''} skipped (unsupported format). Only SVG, PNG, and JPEG are accepted.`
+				setRejectedFiles(message)
+				setTimeout(() => setRejectedFiles(''), 5000)
+			}
 
 			const newFiles: ImageFile[] = await Promise.all(
 				validFiles.map(async (file) => ({
@@ -213,54 +220,57 @@ function App() {
 
 			<main className="container mx-auto px-4 py-8 max-w-6xl">
 				<div className="space-y-6">
-					<Card>
-						<CardContent className="p-6">
-							<div
-								ref={dropzoneRef}
-								onDrop={handleDrop}
-								onDragOver={handleDragOver}
-								onDragLeave={handleDragLeave}
-								onClick={() => fileInputRef.current?.click()}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault()
-										fileInputRef.current?.click()
-									}
-								}}
-								className={cn(
-									'border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors',
-									'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
-									isDragging
-										? 'border-primary bg-primary/5'
-										: 'border-border hover:border-primary/50'
-								)}
-								role="button"
-								tabIndex={0}
-								aria-label="Upload images. Drag and drop or click to browse"
-							>
-								<RiUploadCloudLine
-									className="mx-auto h-16 w-16 text-muted-foreground mb-4"
-									aria-hidden="true"
-								/>
-								<p className="text-lg font-medium mb-2">
-									Drop SVG, PNG, or JPEG
-								</p>
-								<p className="text-sm text-muted-foreground mb-4">or</p>
-								<Button variant="outline" type="button">
-									Browse files
-								</Button>
-								<input
-									ref={fileInputRef}
-									type="file"
-									multiple
-									accept=".svg,.png,.jpg,.jpeg,image/svg+xml,image/png,image/jpeg"
-									onChange={handleFileSelect}
-									className="sr-only"
-									aria-label="File input"
-								/>
+				<Card>
+					<CardContent className="p-6">
+						<label
+							ref={dropzoneRef}
+							onDrop={handleDrop}
+							onDragOver={handleDragOver}
+							onDragLeave={handleDragLeave}
+							className={cn(
+								'block border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors',
+								'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+								isDragging
+									? 'border-primary bg-primary/5'
+									: 'border-border hover:border-primary/50'
+							)}
+						>
+							<RiUploadCloudLine
+								className="mx-auto h-16 w-16 text-muted-foreground mb-4"
+								aria-hidden="true"
+							/>
+							<p className="text-lg font-medium mb-2">
+								Drop SVG, PNG, or JPEG
+							</p>
+							<p className="text-sm text-muted-foreground mb-4">or</p>
+							<span className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 transition-colors">
+								Browse files
+							</span>
+							<input
+								ref={fileInputRef}
+								type="file"
+								multiple
+								accept=".svg,.png,.jpg,.jpeg,image/svg+xml,image/png,image/jpeg"
+								onChange={handleFileSelect}
+								className="sr-only"
+								aria-label="Upload images: SVG, PNG, or JPEG"
+							/>
+						</label>
+					</CardContent>
+				</Card>
+
+					{rejectedFiles && (
+						<div
+							className="p-4 rounded-lg border border-destructive/50 bg-destructive/10 text-destructive"
+							role="alert"
+							aria-live="polite"
+						>
+							<div className="flex items-center gap-2">
+								<RiErrorWarningLine className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
+								<p className="text-sm font-medium">{rejectedFiles}</p>
 							</div>
-						</CardContent>
-					</Card>
+						</div>
+					)}
 
 					{files.length > 0 && (
 						<>
@@ -335,22 +345,15 @@ function App() {
 																<span className="text-sm">Queued</span>
 															</div>
 														)}
-														{file.status === 'optimizing' && (
-															<>
-																<div className="flex items-center gap-2 text-primary">
-																	<RiLoader4Line
-																		className="animate-spin"
-																		aria-hidden="true"
-																	/>
-																	<span className="text-sm">Optimizing</span>
-																</div>
-																<Progress
-																	value={file.progress}
-																	className="w-24"
-																	aria-label={`Optimization progress: ${file.progress}%`}
-																/>
-															</>
-														)}
+													{file.status === 'optimizing' && (
+														<div className="flex items-center gap-2 text-primary">
+															<RiLoader4Line
+																className="animate-spin"
+																aria-hidden="true"
+															/>
+															<span className="text-sm">Optimizing</span>
+														</div>
+													)}
 														{file.status === 'done' && (
 															<div className="flex items-center gap-2 text-green-600">
 																<RiCheckLine aria-hidden="true" />
