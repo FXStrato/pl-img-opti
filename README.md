@@ -37,7 +37,7 @@ A client-side image optimization web application built with React, Vite, and Clo
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 22.12+ and npm
 
 ### Installation
 
@@ -135,7 +135,7 @@ src/
 ## Technology Stack
 
 - **React 19** - UI library
-- **Vite 7** - Build tool and dev server
+- **Vite 8** - Build tool and dev server
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Styling
 - **Shadcn/ui** - Component primitives
