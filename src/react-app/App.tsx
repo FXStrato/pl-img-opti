@@ -9,6 +9,7 @@ import {
 	RiTimeLine,
 	RiArchiveLine,
 	RiCloseLine,
+	RiDeleteBinLine,
 } from 'react-icons/ri'
 import { Button } from './components/ui/button'
 import { Card, CardContent } from './components/ui/card'
@@ -211,6 +212,15 @@ function App() {
 				}
 			}
 			return prev.filter((f) => f.id !== fileId)
+		})
+	}, [])
+
+	const removeAllFiles = useCallback(() => {
+		setFiles((prev) => {
+			prev.forEach((f) => {
+				if (f.thumbnailUrl) URL.revokeObjectURL(f.thumbnailUrl)
+			})
+			return []
 		})
 	}, [])
 
@@ -494,6 +504,15 @@ function App() {
 										</div>
 									</div>
 
+									<div className="flex flex-wrap items-center gap-2">
+									<Button
+										variant="outline"
+										onClick={removeAllFiles}
+										aria-label={`Remove all ${files.length} images from list`}
+									>
+										<RiDeleteBinLine aria-hidden="true" />
+										Remove all
+									</Button>
 									{files.length > 1 && (
 										<Button
 											onClick={downloadAllAsZip}
@@ -504,6 +523,7 @@ function App() {
 											Download ZIP
 										</Button>
 									)}
+									</div>
 								</div>
 							</CardContent>
 						</Card>
